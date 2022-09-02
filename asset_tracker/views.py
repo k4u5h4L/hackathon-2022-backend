@@ -70,7 +70,7 @@ def create_assets(request):
 
     if asset.is_valid():
         asset.save(created_by=request.user, update_by=request.user)
-        return Response({'detail': 'Data is not valid'}, asset.data, status=status.HTTP_201_CREATED)
+        return Response(asset.data, status=status.HTTP_201_CREATED)
     else:
         print(asset.errors)
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -89,7 +89,24 @@ def update_assets(request, id):
 
     if asset.is_valid():
         asset.save(created_by=request.user, update_by=request.user)
-        return Response(asset.data, status=status.HTTP_201_CREATED)
+        return Response(asset.data, status=status.HTTP_200_OK)
     else:
+        print(asset.errors)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'DELETE'])
+@login_required
+@ratelimit(key='ip', rate='500/h')
+def delete_assets(request, id):
+    try:
+        asset = Asset.objects.get(id=id)
+    except Asset.DoesNotExist:
+        return Response({'detail': 'No items with that ID exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        asset.delete()
+        return Response({'detail': 'Item deleted'}, status=status.HTTP_200_OK)
+    except Exception:
         print(asset.errors)
         return Response(status=status.HTTP_400_BAD_REQUEST)

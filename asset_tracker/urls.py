@@ -8,5 +8,5 @@ urlpatterns = [
     path('assets/list/', api_views.list_assets, name='list-asset'),
     path('assets/create/', api_views.create_assets, name='create-asset'),
     path('assets/update/<int:id>/', api_views.update_assets, name='update-asset'),
-    path('assets/delete/<int:id>/', api_views.list_assets, name='delete-asset'),
+    path('assets/delete/<int:id>/', api_views.delete_assets, name='delete-asset'),
 ]
