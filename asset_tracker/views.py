@@ -8,7 +8,7 @@ from rest_framework import status
 from django.contrib.auth.decorators import login_required
 
 from asset_tracker.models import Asset
-from asset_tracker.serializers import AssetSerializer
+from asset_tracker.serializers import AssetCreateSerializer, AssetListSerializer
 
 # Create your views here.
 
@@ -57,7 +57,7 @@ def api_auth_testing(request):
 def list_assets(request):
     assets = Asset.objects.all().order_by('-id')
 
-    serializer = AssetSerializer(assets, many=True)
+    serializer = AssetListSerializer(assets, many=True)
 
     return Response(serializer.data)
 
@@ -66,11 +66,11 @@ def list_assets(request):
 @login_required
 @ratelimit(key='ip', rate='500/h')
 def create_assets(request):
-    asset = AssetSerializer(data=request.data)
+    asset = AssetCreateSerializer(data=request.data)
 
     if asset.is_valid():
-        asset.save()
+        asset.save(created_by=request.user, update_by=request.user)
         return Response(asset.data, status=status.HTTP_201_CREATED)
     else:
-        print(asset.data)
+        print(asset.errors)
         return Response(status=status.HTTP_400_BAD_REQUEST)

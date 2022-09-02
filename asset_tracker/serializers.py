@@ -20,12 +20,23 @@ class UserSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-class AssetSerializer(serializers.ModelSerializer):
+class AssetListSerializer(serializers.ModelSerializer):
     created_by = UserSerializer()
     update_by = UserSerializer()
 
     class Meta:
         model = Asset
         depth = 2
+        fields = '__all__'
+
+
+class AssetCreateSerializer(serializers.ModelSerializer):
+    # created_by = serializers.PrimaryKeyRelatedField(
+    #     read_only=True, default=serializers.CurrentUserDefault())
+    # update_by = serializers.PrimaryKeyRelatedField(
+    #     read_only=True, default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Asset
         fields = ('name', 'serial_number', 'model', 'amount', 'category', 'category_type',
-                  'purchase_date', 'manufactured_date', 'created_by', 'update_by')
+                  'purchase_date', 'manufactured_date')
