@@ -31,3 +31,14 @@ def api_auth_testing(request):
     }
 
     return Response(message)
+
+
+@api_view(['GET'])
+@ratelimit(key='ip', rate='500/h')
+def api_unauth(request):
+    message = {
+        'message': 'unauthenticated',
+        'status': 401
+    }
+
+    return Response(message)

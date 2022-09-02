@@ -220,3 +220,7 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
+
+LOGIN_URL = 'unauthenticated-page'
+LOGIN_REDIRECT_URL = 'unauthenticated-page'
+LOGOUT_REDIRECT_URL = 'token_obtain_pair'
