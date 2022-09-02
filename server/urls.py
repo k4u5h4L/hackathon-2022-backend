@@ -33,7 +33,6 @@ schema_view = get_schema_view(
         title="Dr Jadoo API",
         default_version='v1',
         description="Swagger API docs",
-        terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="kaushal.bhat@gonuclei.com"),
     ),
     public=True,
