@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from ratelimit.decorators import ratelimit
 from django.contrib.auth.decorators import login_required
 
+from asset_tracker.models import Asset
+
 # Create your views here.
 
 cache_timeout = 60
@@ -28,6 +30,19 @@ def api_overview(request):
 def api_auth_testing(request):
     message = {
         'message': 'authenticated',
+    }
+
+    return Response(message)
+
+
+@api_view(['GET'])
+@login_required
+@ratelimit(key='ip', rate='500/h')
+def list_assets(request):
+    assets = list(Asset.objects.all())
+    message = {
+        'message': 'authenticated',
+        "data": assets
     }
 
     return Response(message)

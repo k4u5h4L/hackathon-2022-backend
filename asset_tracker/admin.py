@@ -8,3 +8,4 @@ name = "Asset-Tracker"
 admin.site.site_header = f"{name} Admin"
 admin.site.site_title = f"{name} Admin Portal"
 admin.site.index_title = f"Welcome to {name} Portal"
+
