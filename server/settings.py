@@ -231,3 +231,16 @@ SIMPLE_JWT = {
 LOGIN_URL = 'unauthenticated-page'
 LOGIN_REDIRECT_URL = 'unauthenticated-page'
 LOGOUT_REDIRECT_URL = 'token_obtain_pair'
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
