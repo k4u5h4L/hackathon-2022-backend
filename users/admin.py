@@ -1,4 +1,4 @@
- 
+
 # from django.contrib import admin
 # from django.contrib.auth import get_user_model
 # from django.contrib.auth.admin import UserAdmin
@@ -16,6 +16,9 @@ from django.contrib.auth.admin import UserAdmin
 from django.forms import TextInput, Textarea, CharField
 from django import forms
 from django.db import models
+from django.contrib.auth.models import Group
+
+from .model_form import GroupAdminForm
 
 
 class UserAdminConfig(UserAdmin):
@@ -40,7 +43,24 @@ class UserAdminConfig(UserAdmin):
          ),
     )
 
+# Create a new Group admin.
 
+
+class GroupAdmin(admin.ModelAdmin):
+    # Use our custom form.
+    form = GroupAdminForm
+    # Filter permissions horizontal as well.
+    filter_horizontal = ['permissions']
+
+
+# Unregister the original Group admin.
+admin.site.unregister(Group)
+
+# Register the new Group ModelAdmin.
+admin.site.register(Group, GroupAdmin)
+
+# register custom user
 admin.site.register(CustomUser, UserAdminConfig)
 
+# register profile
 admin.site.register(Profile)
