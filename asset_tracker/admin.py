@@ -5,7 +5,7 @@ from asset_tracker.models import Asset, AssetAssigned, AssetRequested, AssetFeed
 
 
 # admin stuff
-name = "Asset-Tracker"
+name = "Dr Jadoo"
 admin.site.site_header = f"{name} Admin"
 admin.site.site_title = f"{name} Admin Portal"
 admin.site.index_title = f"Welcome to {name} Portal"
