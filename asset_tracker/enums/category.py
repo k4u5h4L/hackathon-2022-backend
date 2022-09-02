@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 
 class CategoryType(object):
@@ -22,8 +20,4 @@ class Category(Enum):
     @classmethod
     def choices(cls):
         return [(key.value.title, key.name) for key in cls]
-
-    @classmethod
-    def category_choices(cls, category: Category):
-        return [(type, type.upper()) for type in category.value.types]
 
