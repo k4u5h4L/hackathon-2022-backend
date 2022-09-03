@@ -16,6 +16,8 @@ from asset_tracker.serializers import AssetAssignedCreateSerializer, AssetCreate
 from server import settings
 from faker import Faker
 import random
+from matplotlib import pyplot as plt
+import matplotlib
 
 from users.models import CustomUser
 from datetime import datetime
@@ -24,6 +26,7 @@ from datetime import datetime
 
 cache_timeout = 60
 fake = Faker()
+matplotlib.use('Agg')
 
 
 @api_view(['GET'])
@@ -76,7 +79,7 @@ def api_overview(request):
                           update_by=admin
                           )
 
-        a.save()
+        # a.save()
 
     return Response(api_urls)
 
@@ -422,3 +425,35 @@ def send_email_to_user(request, email):
     except Exception as e:
         print(e)
         return Response({'detail': f'failed to send email to {email}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@ratelimit(key='ip', rate='500/h')
+def send_graph(request):
+    assets = AssetFeedback.objects.all()
+
+    rating = []
+    users_prod = []
+
+    plt.switch_backend('Agg')
+
+    for i in range(1, 6):
+        num_of_users = len(assets.filter(productivity_rating=i))
+        rating.append(i)
+        users_prod.append(num_of_users)
+
+    fig = plt.figure(figsize=(10, 5))
+
+    # creating the bar plot
+    plt.bar(rating, users_prod, color='maroon',
+            width=0.4)
+
+    plt.xlabel("User rating")
+    plt.ylabel("Number of Users")
+    plt.title("User productivity stats")
+
+    path = f'{settings.MEDIA_ROOT}graph.png'
+
+    plt.savefig(path)
+
+    return Response({'detail': f'{settings.MEDIA_URL}graph.png'})
