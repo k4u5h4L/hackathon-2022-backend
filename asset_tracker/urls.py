@@ -6,12 +6,15 @@ urlpatterns = [
     path('auth/', api_views.api_auth_testing, name='auth-testing'),
     path('unauthenticated/', api_views.api_unauth, name='unauthenticated-page'),
 
+    path('assets/<int:id>/', api_views.get_asset, name='get-asset'),
     path('assets/list/', api_views.list_assets, name='list-asset'),
     path('assets/create/', api_views.create_assets, name='create-asset'),
     path('assets/update/<int:id>/', api_views.update_assets, name='update-asset'),
     path('assets/delete/<int:id>/', api_views.delete_assets, name='delete-asset'),
 
-    path('assets-assigned/list/', api_views.list_assets_assigned,
+    path('assets-assigned/list/', api_views.list_current_assets_assigned_to_user,
+         name='list_current_assets_assigned_to_user'),
+    path('assets-assigned/list/all/', api_views.list_assets_assigned,
          name='list-asset-assigned'),
     path('assets-assigned/create/<int:asset_id>/', api_views.create_assets_assigned,
          name='create-asset-assigned'),
