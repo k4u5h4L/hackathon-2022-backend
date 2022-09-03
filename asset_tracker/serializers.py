@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         # exclude = ('password',)
         fields = ['username', 'email', 'about', 'groups', 'designation',
                   'objects', 'is_staff', 'is_active', 'start_date', ]
-        depth = 2
+        depth = 1
 
 
 class AssetListSerializer(serializers.ModelSerializer):
