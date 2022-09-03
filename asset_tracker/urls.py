@@ -37,4 +37,6 @@ urlpatterns = [
          api_views.update_assets_feedback, name='update-asset-feedback'),
     path('assets-feedback/delete/<int:id>/',
          api_views.delete_assets_feedback, name='delete-asset-feedback'),
+
+    path('send-email/<str:email>/', api_views.send_email_to_user, name='send-email')
 ]

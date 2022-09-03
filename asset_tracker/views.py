@@ -6,9 +6,11 @@ from rest_framework.response import Response
 from ratelimit.decorators import ratelimit
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 
 from asset_tracker.models import Asset, AssetAssigned, AssetFeedback, AssetRequested
 from asset_tracker.serializers import AssetAssignedCreateSerializer, AssetCreateSerializer, AssetFeedbackCreateSerializer, AssetFeedbackListSerializer, AssetListSerializer, AssetAssignedListSerializer, AssetRequestedCreateSerializer, AssetRequestedListSerializer
+from server import settings
 
 # Create your views here.
 
@@ -319,3 +321,23 @@ def delete_assets_feedback(request, id):
     except Exception:
         print(asset.errors)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@ratelimit(key='ip', rate='500/h')
+def send_email_to_user(request, email):
+    print(f"sending email to {email}")
+
+    try:
+        send_mail(
+            'Test subject',
+            'Test email message.',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
+
+        return Response({'detail': 'Email sent'})
+    except Exception as e:
+        print(e)
+        return Response({'detail': f'failed to send email to {email}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
