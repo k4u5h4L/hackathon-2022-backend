@@ -7,15 +7,23 @@ from ratelimit.decorators import ratelimit
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from asset_tracker.enums.approval_status import ApprovalStatus
 from asset_tracker.enums.asset_status import AssetStatus
+from asset_tracker.enums.category import Category
 
 from asset_tracker.models import Asset, AssetAssigned, AssetFeedback, AssetRequested
 from asset_tracker.serializers import AssetAssignedCreateSerializer, AssetCreateSerializer, AssetFeedbackCreateSerializer, AssetFeedbackListSerializer, AssetListSerializer, AssetAssignedListSerializer, AssetRequestedCreateSerializer, AssetRequestedListSerializer
 from server import settings
+from faker import Faker
+import random
+
+from users.models import CustomUser
+from datetime import datetime
 
 # Create your views here.
 
 cache_timeout = 60
+fake = Faker()
 
 
 @api_view(['GET'])
@@ -25,6 +33,41 @@ def api_overview(request):
         'Foo': '/bar',
         'test': '/testing',
     }
+    # asset = Asset.objects.get(id=2)
+    # user = CustomUser.objects.get(id=2)
+    # admin = CustomUser.objects.get(id=1)
+
+    # choices = ApprovalStatus.choices()
+    # cat_choices = Category.choices()
+
+    # for _ in range(7):
+    #     choice = random.choice(choices)
+    #     # a = AssetAssigned(assigned_asset=asset,
+    #     #                   assigned_to=user,
+    #     #                   assigned_date=datetime.now(),
+    #     #                   approved_by=admin,
+    #     #                   asset_status=choice[0],
+    #     #                   created_by=admin,
+    #     #                   update_by=admin
+    #     #                   )
+
+    #     cat_choice = random.choice(cat_choices)[0]
+
+    #     a = AssetRequested(requested_date=datetime.now(),
+    #                        requested_by=user,
+    #                        requested_to=admin,
+    #                        manager_approval=random.choice([True, False]),
+    #                        reason=fake.text()[:70],
+    #                        approval_status=choice[0],
+    #                        request_needed=random.choice(
+    #                            ["New", "Repair", "Change"]),
+    #                        category=cat_choice,
+    #                        category_type=cat_choice,
+    #                        created_by=admin,
+    #                        update_by=admin
+    #                        )
+
+    #     a.save()
 
     return Response(api_urls)
 
@@ -145,11 +188,9 @@ def list_assets_assigned(request):
 def list_current_assets_assigned_to_user(request):
     user = request.user
 
-    # print(AssetStatus.IN_USE.name)
-
     assets_assigned = AssetAssigned.objects.all().order_by(
         '-id').filter(assigned_to=user).filter(
-            asset_status="In Use")
+            asset_status=AssetStatus.IN_USE.value)
 
     serializer = AssetAssignedListSerializer(assets_assigned, many=True)
 
