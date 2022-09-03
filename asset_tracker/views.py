@@ -145,8 +145,11 @@ def list_assets_assigned(request):
 def list_current_assets_assigned_to_user(request):
     user = request.user
 
+    # print(AssetStatus.IN_USE.name)
+
     assets_assigned = AssetAssigned.objects.all().order_by(
-        '-id').filter(assigned_to=user).filter(asset_status=AssetStatus.IN_USE)
+        '-id').filter(assigned_to=user).filter(
+            asset_status="In Use")
 
     serializer = AssetAssignedListSerializer(assets_assigned, many=True)
 
