@@ -7,6 +7,7 @@ from ratelimit.decorators import ratelimit
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from asset_tracker.enums.asset_status import AssetStatus
 
 from asset_tracker.models import Asset, AssetAssigned, AssetFeedback, AssetRequested
 from asset_tracker.serializers import AssetAssignedCreateSerializer, AssetCreateSerializer, AssetFeedbackCreateSerializer, AssetFeedbackListSerializer, AssetListSerializer, AssetAssignedListSerializer, AssetRequestedCreateSerializer, AssetRequestedListSerializer
@@ -97,7 +98,20 @@ def update_assets(request, id):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET'])
+@login_required
+@ratelimit(key='ip', rate='500/h')
+def get_asset(request, id):
+    try:
+        asset = Asset.objects.get(id=id)
+        serializer = AssetListSerializer(asset, many=False)
+
+        return Response(serializer.data)
+    except Asset.DoesNotExist:
+        return Response({'detail': 'No items with that ID exist'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['DELETE'])
 @login_required
 @ratelimit(key='ip', rate='500/h')
 def delete_assets(request, id):
@@ -119,6 +133,20 @@ def delete_assets(request, id):
 @ratelimit(key='ip', rate='500/h')
 def list_assets_assigned(request):
     assets_assigned = AssetAssigned.objects.all().order_by('-id')
+
+    serializer = AssetAssignedListSerializer(assets_assigned, many=True)
+
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@login_required
+@ratelimit(key='ip', rate='500/h')
+def list_current_assets_assigned_to_user(request):
+    user = request.user
+
+    assets_assigned = AssetAssigned.objects.all().order_by(
+        '-id').filter(assigned_to=user).filter(asset_status=AssetStatus.IN_USE)
 
     serializer = AssetAssignedListSerializer(assets_assigned, many=True)
 
