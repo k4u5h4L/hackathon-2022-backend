@@ -6,14 +6,24 @@ from rest_framework.response import Response
 from ratelimit.decorators import ratelimit
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from asset_tracker.enums.approval_status import ApprovalStatus
 from asset_tracker.enums.asset_status import AssetStatus
+from asset_tracker.enums.category import Category
 
 from asset_tracker.models import Asset, AssetAssigned, AssetFeedback, AssetRequested
 from asset_tracker.serializers import AssetAssignedCreateSerializer, AssetCreateSerializer, AssetFeedbackCreateSerializer, AssetFeedbackListSerializer, AssetListSerializer, AssetAssignedListSerializer, AssetRequestedCreateSerializer, AssetRequestedListSerializer
+from server import settings
+from faker import Faker
+import random
+
+from users.models import CustomUser
+from datetime import datetime
 
 # Create your views here.
 
 cache_timeout = 60
+fake = Faker()
 
 
 @api_view(['GET'])
@@ -23,6 +33,41 @@ def api_overview(request):
         'Foo': '/bar',
         'test': '/testing',
     }
+    # asset = Asset.objects.get(id=2)
+    # user = CustomUser.objects.get(id=2)
+    # admin = CustomUser.objects.get(id=1)
+
+    # choices = ApprovalStatus.choices()
+    # cat_choices = Category.choices()
+
+    # for _ in range(7):
+    #     choice = random.choice(choices)
+    #     # a = AssetAssigned(assigned_asset=asset,
+    #     #                   assigned_to=user,
+    #     #                   assigned_date=datetime.now(),
+    #     #                   approved_by=admin,
+    #     #                   asset_status=choice[0],
+    #     #                   created_by=admin,
+    #     #                   update_by=admin
+    #     #                   )
+
+    #     cat_choice = random.choice(cat_choices)[0]
+
+    #     a = AssetRequested(requested_date=datetime.now(),
+    #                        requested_by=user,
+    #                        requested_to=admin,
+    #                        manager_approval=random.choice([True, False]),
+    #                        reason=fake.text()[:70],
+    #                        approval_status=choice[0],
+    #                        request_needed=random.choice(
+    #                            ["New", "Repair", "Change"]),
+    #                        category=cat_choice,
+    #                        category_type=cat_choice,
+    #                        created_by=admin,
+    #                        update_by=admin
+    #                        )
+
+    #     a.save()
 
     return Response(api_urls)
 
@@ -95,6 +140,7 @@ def update_assets(request, id):
         print(asset.errors)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
 @login_required
 @ratelimit(key='ip', rate='500/h')
@@ -135,17 +181,21 @@ def list_assets_assigned(request):
 
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 @login_required
 @ratelimit(key='ip', rate='500/h')
 def list_current_assets_assigned_to_user(request):
     user = request.user
-    
-    assets_assigned = AssetAssigned.objects.all().order_by('-id').filter(assigned_to=user).filter(asset_status=AssetStatus.IN_USE)
+
+    assets_assigned = AssetAssigned.objects.all().order_by(
+        '-id').filter(assigned_to=user).filter(
+            asset_status=AssetStatus.IN_USE.value)
 
     serializer = AssetAssignedListSerializer(assets_assigned, many=True)
 
     return Response(serializer.data)
+
 
 @api_view(['POST'])
 @login_required
@@ -343,3 +393,23 @@ def delete_assets_feedback(request, id):
     except Exception:
         print(asset.errors)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@ratelimit(key='ip', rate='500/h')
+def send_email_to_user(request, email):
+    print(f"sending email to {email}")
+
+    try:
+        send_mail(
+            'Test subject',
+            'Test email message.',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
+
+        return Response({'detail': 'Email sent'})
+    except Exception as e:
+        print(e)
+        return Response({'detail': f'failed to send email to {email}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

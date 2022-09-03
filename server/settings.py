@@ -231,3 +231,26 @@ SIMPLE_JWT = {
 LOGIN_URL = 'unauthenticated-page'
 LOGIN_REDIRECT_URL = 'unauthenticated-page'
 LOGOUT_REDIRECT_URL = 'token_obtain_pair'
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
+# Email stuff
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+
+EMAIL_HOST_USER = config("EMAIL_USERNAME")
+EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
+
+EMAIL_USE_TLS = True

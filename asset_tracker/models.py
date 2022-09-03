@@ -1,3 +1,4 @@
+from datetime import datetime, date
 from django.db import models
 from django.core.exceptions import ValidationError
 
@@ -24,8 +25,8 @@ class Asset(models.Model):
         max_length=20,
         default=Category.LAPTOP,
     )
-    purchase_date = models.DateTimeField()
-    manufactured_date = models.DateTimeField()
+    purchase_date = models.DateField(default=date.today)
+    manufactured_date = models.DateField(default=date.today)
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
@@ -42,7 +43,7 @@ class AssetAssigned(models.Model):
     assigned_asset = models.ForeignKey(to=Asset, on_delete=models.DO_NOTHING)
     assigned_to = models.ForeignKey(
         to=CustomUser, on_delete=models.DO_NOTHING, related_name='asset_assigned_to')
-    assigned_date = models.DateTimeField()
+    assigned_date = models.DateField(default=date.today)
     approved_by = models.ForeignKey(
         to=CustomUser, on_delete=models.DO_NOTHING, related_name='asset_approved_by')
     asset_status = models.CharField(
@@ -63,7 +64,7 @@ class AssetAssigned(models.Model):
 
 
 class AssetRequested(models.Model):
-    requested_date = models.DateTimeField()
+    requested_date = models.DateField(default=date.today)
     requested_by = models.ForeignKey(
         to=CustomUser, on_delete=models.DO_NOTHING, related_name='asset_requested_by')
     requested_to = models.ForeignKey(
@@ -104,14 +105,14 @@ class AssetRequested(models.Model):
 
 class AssetFeedback(models.Model):
     def validate_productivity_rating(productivity_rating):
-        if not 0 < productivity_rating < 5:
+        if not 0 < productivity_rating <= 5:
             raise ValidationError(
-                f'Rating needs to be in rang (0,5) found : {productivity_rating}')
+                f'Rating needs to be in rang (1,5) found : {productivity_rating}')
 
     asset = models.ForeignKey(to=Asset, on_delete=models.DO_NOTHING)
     feedback_by = models.ForeignKey(
         to=CustomUser, on_delete=models.DO_NOTHING, related_name='asset_feedback_by')
-    feedback_date = models.DateTimeField()
+    feedback_date = models.DateField(default=date.today)
     feedback = models.CharField(max_length=100)
     is_working = models.CharField(max_length=100)
     productivity_rating = models.IntegerField(
