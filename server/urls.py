@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
-from django.conf.urls import url, handler404, handler500
+from django.conf.urls import handler404, handler500
 from django.views.static import serve
 
 from rest_framework_simplejwt.views import (
@@ -30,10 +30,10 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Dr Jadoo API",
+        title="Groscan",
         default_version='v1',
         description="Swagger API docs",
-        contact=openapi.Contact(email="kaushal.bhat@gonuclei.com"),
+        contact=openapi.Contact(email="kaushal@kaush.me"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
@@ -47,18 +47,11 @@ urlpatterns = [
     re_path(r'^redoc/$', schema_view.with_ui('redoc',
             cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
-    url(r'^static/(?P<path>.*)$', serve,
+    re_path(r'^static/(?P<path>.*)$', serve,
         {'document_root': settings.STATIC_ROOT}),
-    url(r'^media/(?P<path>.*)$', serve,
+    re_path(r'^media/(?P<path>.*)$', serve,
         {'document_root': settings.MEDIA_ROOT}),
-    path('api/', include('asset_tracker.urls')),
-    path('api/user/', include('users.urls', namespace='users')),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
-    # jwt auth routes below
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('api/', include('llm.urls')),
 ]
 
 # handler404 = 'users.views.not_found_page'
